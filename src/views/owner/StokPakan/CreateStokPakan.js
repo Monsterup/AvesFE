@@ -7,12 +7,14 @@ import axios from '../../../axios'
 import {showNotification} from '../../components/Notification'
 import auth from '../../../auth'
 import AsyncFetch from '../../components/AsyncFetch';
+import moment, { now } from 'moment';
 
 export default function CreateStokPakan(props) {
     const [modal, setModal] = useState(false);
     const [feedOptions, setFeedOptions] = useState([]);
     const [houseOptions, setHouseOptions] = useState([]);
     const [hasHouse, setHasHouse] = useState(true);
+    let curren = moment(new Date(now())).format('YYYY-MM-DD');
 
     const selectFeedQuery = (keyword, cb) => {
         const q = `query{
@@ -82,7 +84,7 @@ export default function CreateStokPakan(props) {
                     <option></option>
                     {feedOptions.map((data, key) => {
                         return (
-                            <option key={key} value={data._id}>{data.code} - {data.type}</option>
+                            <option key={key} value={data._id}>P{data.code} - {data.type}</option>
                         )
                     })}
                 </AvInput>

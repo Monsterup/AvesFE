@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react'
 import {Button, Col, Row, Input, InputGroup, InputGroupAddon, InputGroupText, Label} from'reactstrap'
-import moment from 'moment'
 import {AvField, AvGroup, AvInput as AvInput2} from 'availity-reactstrap-validation';
 import AvInput from '../../components/Input'
 import CreateModal from '../../components/CreateModal'
@@ -8,11 +7,13 @@ import axios from '../../../axios'
 import {showNotification} from '../../components/Notification'
 import auth from '../../../auth'
 import AsyncFetch from '../../components/AsyncFetch';
+import moment, { now } from 'moment';
 
 export default function CreateMutasi(props) {
     const [modal, setModal] = useState(false);
     const [rearingOptions, setRearingOptions] = useState([]);
     const [feedOptions, setFeedOptions] = useState([]);
+    let curren = moment(new Date(now())).format('YYYY-MM-DD');
 
     const selectRearingQuery = (keyword, cb) => {
         const q = `query{
@@ -72,7 +73,7 @@ export default function CreateMutasi(props) {
             </Col>
             <Col md="12">
                 <Label>Tanggal</Label>
-                <AvInput2 label="Tanggal" name="tanggal" type="date"/>
+                <AvInput2 value={curren} label="Tanggal" name="tanggal" type="date"/>
             <br/>
             </Col>
             <Col md="12">
@@ -94,7 +95,7 @@ export default function CreateMutasi(props) {
                     <option></option>
                     {feedOptions.map((data, key) => {
                         return (
-                            <option key={key} value={data._id}>{data.code} - {data.type}</option>
+                            <option key={key} value={data._id}>P{data.code} - {data.type}</option>
                         )
                     })}
                 </AvInput>

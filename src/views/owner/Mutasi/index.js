@@ -19,7 +19,7 @@ import SwalDelete from '../../components/SwalDelete';
 import { showNotification } from '../../components/Notification';
 import { NotificationContainer } from 'react-notifications';
 
-function StokPakan() {
+function Rearing() {
     moment.locale('id', {
         months: 'Januari_Februari_Maret_April_Mei_Juni_Juli_Agustus_September_Oktober_November_Desember'.split('_')
     });
@@ -49,7 +49,7 @@ function StokPakan() {
     const option = [10, 25, 50, 100];
 
     //Query Params
-    const [limit, setLimit] = useState(10);
+    const [limit, setLimit] = useState(sessionStorage.getItem('limit') || 10);
     const [skip, setSkip] = useState(0);
     const [keyword, setKeyword] = useState('');
 
@@ -68,6 +68,7 @@ function StokPakan() {
 
     //Fetch List Data
     const fetchData = (keyword = '', limit_ = limit, skip_ = skip, callback) => {
+        setLoading(true);
         const periode = `query{
                             rearings(keyword: "", limit: 0, skip: 0){
                                 totalCount
@@ -101,6 +102,17 @@ function StokPakan() {
             }
         })
     }
+
+    useEffect(() => {
+        fetchData(keyword, limit, skip, (page) => {
+            setMaxPage(page);
+            if (page > 5) {
+                setPagination([1, 2, 3, '...', page]);
+            } else {
+                setPagination(Array.from(Array(page).keys()).map(x => ++x));
+            }
+        });
+    }, []);
 
     // Fetch Update Data
     const showUpdateDialog = (_id) => {
@@ -153,14 +165,9 @@ function StokPakan() {
         AsyncFetch(q3, (res) => {
             result.feed = res.data.data.feeds.feeds;
             setObject(result);
+            setUpdateModal(true);
         });
     }
-
-    useEffect(() => {
-        return () => {
-            setUpdateModal(true)
-        }
-    }, [object]);
 
     const updateSuccess = () => {
         setUpdateModal(false);
@@ -189,6 +196,37 @@ function StokPakan() {
             }
         })
     }
+
+    const handleSearchChange = (e) => {
+        setKeyword(e.target.value);
+        fetchData(e.target.value, limit, skip, (page) => {
+            setMaxPage(page);
+            if (page > 5) {
+                setPagination([1, 2, 3, '...', page]);
+            } else {
+                setPagination(Array.from(Array(page).keys()).map(x => ++x));
+            }
+        });
+        setPaginationActive(1);
+    };
+
+    const handleLimitChange = (e) => {
+        setLimit(e.target.value);
+        sessionStorage.setItem('limit', e.target.value);
+        fetchData(keyword, e.target.value, skip, (page) => {
+            setMaxPage(page);
+            if (page > 5) {
+                setPagination([1, 2, 3, '...', page]);
+            } else {
+                setPagination(Array.from(Array(page).keys()).map(x => ++x));
+            }
+        })
+    }
+    
+    const handleChangePagination = (target) => {
+        fetchData(keyword, 10, (target - 1) * 10, () => {
+        });
+    };
 
     //Render Fetch Data
     const renderData = (objects) => {
@@ -243,35 +281,6 @@ function StokPakan() {
         }
     }
 
-    useEffect(() => {
-        fetchData(keyword, limit, skip, (page) => {
-            setMaxPage(page);
-            if (page > 5) {
-                setPagination([1, 2, 3, '...', page]);
-            } else {
-                setPagination(Array.from(Array(page).keys()).map(x => ++x));
-            }
-        });
-    }, []);
-
-    const handleChangePagination = (target) => {
-        fetchData(keyword, 10, (target - 1) * 10, () => {
-        });
-    };
-
-    const handleSearchChange = (e) => {
-        setKeyword(e.target.value);
-        fetchData(e.target.value, limit, skip, (page) => {
-            setMaxPage(page);
-            // if (page > 5) {
-            //     ref.current.handleSearch([1, 2, 3, '...', page], page);
-            // } else {
-            //     ref.current.handleSearch(Array.from(Array(page).keys()).map(x => ++x), page);
-            // }
-        });
-        setPaginationActive(1);
-    };
-
     return (
         <div className="animated fadeIn">
             <Row>
@@ -290,7 +299,7 @@ function StokPakan() {
                                         placeholder="Cari..."/>
                                 </Col>
                                 <Col md="1">
-                                    <Input type="select" name="number" innerRef={number}>
+                                    <Input type="select" value={limit} onChange={handleLimitChange} name="number" innerRef={number}>
                                         {option.map((data, key) => {
                                             return (<option key={key} value={data}>{data}</option>)
                                         })}
@@ -339,4 +348,4 @@ function StokPakan() {
     )
 }
 
-export default StokPakan;
+export default Rearing;

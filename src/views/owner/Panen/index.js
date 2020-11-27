@@ -18,7 +18,7 @@ import SwalDelete from '../../components/SwalDelete';
 import { showNotification } from '../../components/Notification';
 import { NotificationContainer } from 'react-notifications';
 
-function StokPakan() {
+function Harvest() {
     const [loading, setLoading] = useState(true);
     const [hasRearing, setHasRearing] = useState(false);
 
@@ -324,4 +324,4 @@ function StokPakan() {
     )
 }
 
-export default StokPakan;
+export default Harvest;

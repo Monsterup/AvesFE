@@ -30,7 +30,7 @@ function Pembelian(props) {
     //Data Table
     const objectName = "Transaksi";
     const headings = ['Kode Pesanan', 'Status', 'Total', 'Pengguna'];
-    const columns = ['code', 'status', 'cost', 'creator.name'];
+    const columns = ['code', 'status', 'cost', 'creator'];
     const [swal, setSwal] = useState(false);
     const [swal2, setSwal2] = useState(false);
     const [failed, setFailed] = useState(false);
@@ -122,15 +122,13 @@ function Pembelian(props) {
                                 resi
                                 courier
                                 amount
-                                creator {
-                                    _id
-                                    username
-                                }
+                                creator
                             }
                         }
                     }
                 `;
         AsyncFetch(q, (res) => {
+            console.log(res);
             setLoading(false);
             setObjects(res.data.data.adminOrders.orders);
             const page = Math.ceil(parseInt(res.data.data.adminOrders.totalCount) / limit_);
@@ -294,7 +292,7 @@ function Pembelian(props) {
                 resi: row['resi'],
                 courier: row['courier'],
                 amount: row['amount'],
-                creator: row.creator._id
+                creator: row['creator']
             }
             const stat = row['status'];
             return (

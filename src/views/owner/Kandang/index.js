@@ -10,10 +10,7 @@ import {
     Input
 } from 'reactstrap';
 import Skeleton from 'react-loading-skeleton';
-import HashLoader from 'react-spinners/HashLoader'
-import LoadingOverlay from 'react-loading-overlay'
 import Paginate from '../../components/Paginate';
-import Loading from '../../components/loading';
 import AsyncFetch from '../../components/AsyncFetch';
 import CreateHouse from './CreateKandang';
 import UpdateHouse from './UpdateKandang';
@@ -23,7 +20,6 @@ import { NotificationContainer } from 'react-notifications';
 
 function Kandang() {
     const [loading, setLoading] = useState(true);
-
     //Data Table
     const objectName = "Master Kandang";
     const headings = ['Kandang', 'Kapasitas', 'Alamat'];
@@ -31,23 +27,18 @@ function Kandang() {
     const [swal, setSwal] = useState(false);
     const [objects, setObjects] = useState([]);
     const [object, setObject] = useState(null);
-
     //Delete & Update
     const [updateModal, setUpdateModal] = useState(false);
     const [deleteObject, setDeleteObject] = useState(null);
-
     //Pagination
     const ref = useRef('');
     const [pagination, setPagination] = useState([]);
     const [paginationActive, setPaginationActive] = useState(1);
     const [maxPage, setMaxPage] = useState(0);
-
     //Showed List
-    const number = useRef(10);
     const option = [10, 25, 50, 100];
-
     //Query Params
-    const [limit, setLimit] = useState(10);
+    const [limit, setLimit] = useState(sessionStorage.getItem('limit') || 10);
     const [skip, setSkip] = useState(0);
     const [keyword, setKeyword] = useState('');
 
@@ -56,9 +47,9 @@ function Kandang() {
         return (
             <div>
                 <CreateHouse objectName={objectName} onSuccess={() => fetchData(keyword, limit, skip, () => {})}/>
-                {updateModal && 
-                <UpdateHouse objectName={objectName} onSuccess={updateSuccess} data={object} modal={updateModal}
-                    onCancel={() => setUpdateModal(false)}/>
+                {
+                    updateModal && 
+                    <UpdateHouse objectName={objectName} onSuccess={updateSuccess} data={object} modal={updateModal} onCancel={() => setUpdateModal(false)}/>
                 }
             </div>
         )
@@ -66,6 +57,7 @@ function Kandang() {
 
     //Fetch List Data
     const fetchData = (keyword = '', limit_ = limit, skip_ = skip, callback) => {
+        setLoading(true);
         const q = `query{
                         houses(keyword : "${keyword}", limit : ${limit_}, skip : ${skip_}){
                             totalCount
@@ -86,6 +78,17 @@ function Kandang() {
         })
     }
 
+    useEffect(() => {
+        fetchData(keyword, limit, skip, (page) => {
+            setMaxPage(page);
+            if (page > 5) {
+                setPagination([1, 2, 3, '...', page]);
+            } else {
+                setPagination(Array.from(Array(page).keys()).map(x => ++x));
+            }
+        });
+    }, []);
+
     // Fetch Update Data
     const showUpdateDialog = (_id) => {
         const q = `query{
@@ -99,19 +102,13 @@ function Kandang() {
                 `;
         AsyncFetch(q, (res) => {
             setObject(res.data.data.house);
+            setUpdateModal(true);
         });
     }
 
-    useEffect(() => {
-        return () => {
-            setUpdateModal(true)
-        }
-    }, [object]);
-
     const updateSuccess = () => {
         setUpdateModal(false);
-        fetchData(keyword, limit, skip, () => {
-        });
+        fetchData(keyword, limit, skip, () => {});
     };
 
     // Fetch Delete Data
@@ -122,11 +119,10 @@ function Kandang() {
 
     const confirmDelete = () => {
         const q = `mutation{
-                                deleteHouse(_id : "${deleteObject}"){
-                                    deleted
-                                }
-                            }
-                        `;
+                    deleteHouse(_id : "${deleteObject}"){
+                        deleted
+                    }
+                }`;
         AsyncFetch(q, (res) => {
             if (res) {
                 setSwal(false)
@@ -135,6 +131,37 @@ function Kandang() {
             }
         })
     }
+
+    const handleSearchChange = (e) => {
+        setKeyword(e.target.value);
+        fetchData(e.target.value, limit, skip, (page) => {
+            setMaxPage(page);
+            if (page > 5) {
+                setPagination([1, 2, 3, '...', page]);
+            } else {
+                setPagination(Array.from(Array(page).keys()).map(x => ++x));
+            }
+        });
+        setPaginationActive(1);
+    };
+
+    const handleLimitChange = (e) => {
+        setLimit(e.target.value);
+        sessionStorage.setItem('limit', e.target.value);
+        fetchData(keyword, e.target.value, skip, (page) => {
+            setMaxPage(page);
+            if (page > 5) {
+                setPagination([1, 2, 3, '...', page]);
+            } else {
+                setPagination(Array.from(Array(page).keys()).map(x => ++x));
+            }
+        })
+    }
+
+    const handleChangePagination = (target) => {
+        fetchData(keyword, 10, (target - 1) * 10, () => {
+        });
+    };
 
     //Render Fetch Data
     const renderData = (objects) => {
@@ -168,35 +195,6 @@ function Kandang() {
         })
     }
 
-    useEffect(() => {
-        fetchData(keyword, limit, skip, (page) => {
-            setMaxPage(page);
-            if (page > 5) {
-                setPagination([1, 2, 3, '...', page]);
-            } else {
-                setPagination(Array.from(Array(page).keys()).map(x => ++x));
-            }
-        });
-    }, []);
-
-    const handleChangePagination = (target) => {
-        fetchData(keyword, 10, (target - 1) * 10, () => {
-        });
-    };
-
-    const handleSearchChange = (e) => {
-        setKeyword(e.target.value);
-        fetchData(e.target.value, limit, skip, (page) => {
-            setMaxPage(page);
-            // if (page > 5) {
-            //     ref.current.handleSearch([1, 2, 3, '...', page], page);
-            // } else {
-            //     ref.current.handleSearch(Array.from(Array(page).keys()).map(x => ++x), page);
-            // }
-        });
-        setPaginationActive(1);
-    };
-
     return (
         <div className="animated fadeIn">
             <Row>
@@ -215,7 +213,7 @@ function Kandang() {
                                         placeholder="Cari..."/>
                                 </Col>
                                 <Col md="1">
-                                    <Input type="select" name="number" innerRef={number}>
+                                    <Input type="select" value={limit} onChange={handleLimitChange} name="number">
                                         {option.map((data, key) => {
                                             return (<option key={key} value={data}>{data}</option>)
                                         })}

@@ -9,23 +9,27 @@ import {
     Button,
     Input
 } from 'reactstrap';
+import moment from 'moment';
+import {NotificationContainer, NotificationManager} from 'react-notifications';
 import Skeleton from 'react-loading-skeleton';
 import Paginate from '../../components/Paginate';
 import AsyncFetch from '../../components/AsyncFetch';
-import CreateHouse from './CreateStokPakan';
-import UpdateHouse from './UpdateStokPakan';
+import CreateIoT from './CreateIoT';
+import UpdateIoT from './UpdateIoT';
 import SwalDelete from '../../components/SwalDelete';
 import { showNotification } from '../../components/Notification';
-import { NotificationContainer } from 'react-notifications';
 
-function StokPakan() {
+function SensorType() {
+    moment.locale('id', {
+        months: 'Januari_Februari_Maret_April_Mei_Juni_Juli_Agustus_September_Oktober_November_Desember'.split('_')
+    });
     const [loading, setLoading] = useState(true);
-    const [hasHouse, setHasHouse] = useState(false);
+    const [hasRearing, setHasRearing] = useState(false);
 
     //Data Table
-    const objectName = "Stok Pakan";
-    const headings = ['Kandang', 'Kode Pakan', 'Jenis Pakan', 'Jumlah'];
-    const columns = ['house', 'feed', 'type', 'number'];
+    const objectName = "IoT";
+    const headings = ['Nama', 'Harga'];
+    const columns = ['name', 'price'];
     const [swal, setSwal] = useState(false);
     const [objects, setObjects] = useState([]);
     const [object, setObject] = useState(null);
@@ -53,9 +57,9 @@ function StokPakan() {
     const Modal = () => {
         return (
             <div>
-                <CreateHouse objectName={objectName} onSuccess={() => fetchData(keyword, limit, skip, () => {})}/>
+                <CreateIoT objectName={objectName} onSuccess={() => fetchData(keyword, limit, skip, () => {})}/>
                 {updateModal && 
-                <UpdateHouse objectName={objectName} onSuccess={updateSuccess} data={object} modal={updateModal}
+                <UpdateIoT objectName={objectName} onSuccess={updateSuccess} data={object} modal={updateModal}
                     onCancel={() => setUpdateModal(false)}/>
                 }
             </div>
@@ -64,97 +68,55 @@ function StokPakan() {
 
     //Fetch List Data
     const fetchData = (keyword = '', limit_ = limit, skip_ = skip, callback) => {
-        const house = `query{
-                            houses(keyword:"", limit:0, skip:0){
-                                totalCount
-                            }
-                        }
-                    `;
-        const feed = `query{
-                            feeds(keyword:"", limit:0, skip:0){
-                                totalCount
-                            }
-                        }
-                    `;
         const q = `query{
-                        feedStocks(keyword : "${keyword}", limit : ${limit_}, skip : ${skip_}){
+                        sensorTypes(keyword : "${keyword}", limit : ${limit_}, skip : ${skip_}){
                             totalCount
-                            feedStocks{
+                            sensorTypes {
                                 _id
-                                number
-                                feed
-                                type
-                                house
+                                name
+                                price
                             }
                         }
                     }
                 `;
-        AsyncFetch(house, (res) => {
-            if(res.data.data.houses.totalCount > 0) {
-                AsyncFetch(feed, (res) => {
-                    if(res.data.data.feeds.totalCount > 0) {
-                        setHasHouse(true);
-                        AsyncFetch(q, (res) => {
-                            console.log(res);
-                            setLoading(false);
-                            setObjects(res.data.data.feedStocks.feedStocks);
-                            const page = Math.ceil(parseInt(res.data.data.feedStocks.totalCount) / limit_);
-                            callback(page);
-                        })
-                    }
-                })
-            }
+        AsyncFetch(q, (res) => {
+            setLoading(false);
+            setObjects(res.data.data.sensorTypes.sensorTypes);
+            const page = Math.ceil(parseInt(res.data.data.sensorTypes.totalCount) / limit_);
+            callback(page);
         })
     }
 
     // Fetch Update Data
     const showUpdateDialog = (_id) => {
         const q = `query{
-                        feedStock(_id : "${_id}"){
+                        device(_id : "${_id}"){
                             _id
-                            number
-                            house{
+                            serialNumber
+                            creator{
                                 _id
-                                name
-                            }
-                            feed{
-                                _id
-                                code
-                                type
                             }
                         }
                     }
                 `;
         const q2 = `query{
-                    houses(keyword: "${keyword}", limit: 0, skip: 0){
-                        houses{
-                            _id
-                            name
+                        users(keyword: "", limit: 0, skip: 0){
+                            users{
+                                _id
+                                username
+                            }
                         }
                     }
-                }`
-        const q3 = `query{
-                    feeds(keyword: "${keyword}", limit: 0, skip: 0){
-                        feeds{
-                            _id
-                            code
-                            type
-                        }
-                    }
-                }`
+                `;
         let result = {
-            feedStocks:{},
-            feed:[],
-            house:[]
+            device:{},
+            users:[],
         };
         AsyncFetch(q, (res) => {
-            result.feedStocks = res.data.data.feedStock;
+            result.device = res.data.data.device;
         });
         AsyncFetch(q2, (res) => {
-            result.house = res.data.data.houses.houses;
-        });
-        AsyncFetch(q3, (res) => {
-            result.feed = res.data.data.feeds.feeds;
+            result.users = res.data.data.users.users;
             setObject(result);
         });
     }
@@ -173,14 +135,13 @@ function StokPakan() {
 
     // Fetch Delete Data
     const showSwal = (_id) => {
-        console.log(_id);
         setSwal(true);
         setDeleteObject(_id);
     }
 
     const confirmDelete = () => {
         const q = `mutation{
-                    deleteFeedStock(_id : "${deleteObject}"){
+                    deleteDevice(_id : "${deleteObject}"){
                         deleted
                     }
                 }
@@ -196,50 +157,45 @@ function StokPakan() {
 
     //Render Fetch Data
     const renderData = (objects) => {
-        if(!hasHouse) {
+        return objects.map(function (row, row_index) {
+            row.index = row_index;
             return (
-                <tr>
-                    <td className="text-center pt-5" colSpan="4">
-                        <h3 style={{color:"gray"}}>TAMBAH MASTER KANDANG & PAKAN TERLEBIH DAHULU</h3>
+                <tr key={row_index}>
+                    {
+                        columns.map((column, index) => {
+                            if(column === 'date') {
+                                const localeB = moment(row[column] * 1).format('DD MMMM YYYY');
+                                return (
+                                    <td key={column + index}>
+                                        {localeB}
+                                    </td>
+                                )
+                            }
+                            else {
+                                return (
+                                    <td key={column + index}>
+                                        {row[column]}
+                                    </td>
+                                )
+                            }
+                        })
+                    }
+                    <td>
+                        <Button color="primary" size="sm"
+                            onClick={() => showUpdateDialog(row._id)}
+                            className="btn-square">
+                            <i className="fa fa-pencil"></i>&nbsp;Edit
+                        </Button>
+                        &nbsp;&nbsp;
+                        <Button color="danger" size="sm"
+                            onClick={() => showSwal(row._id)}
+                                className="btn-square">
+                            <i className="fa fa-trash"></i>&nbsp;Hapus
+                        </Button>
                     </td>
                 </tr>
             )
-        } else {
-            return objects.map(function (row, row_index) {
-                row.index = row_index;
-
-                return (
-                    <tr key={row_index}>
-                        {
-                            columns.map((column, index) => {
-                                if(column === "feed") {
-                                    return (
-                                        <td key={column + index}>P{row[column]}</td>
-                                    )
-                                } else {
-                                    return (
-                                        <td key={column + index}>{row[column]}</td>
-                                    )
-                                }
-                            })
-                        }
-                        <td>
-                            <Button color="primary" size="sm"
-                                onClick={() => showUpdateDialog(row._id)}
-                                className="btn-square">
-                                <i className="fa fa-pencil"></i>&nbsp;Edit
-                            </Button>
-                            &nbsp;&nbsp;
-                            <Button color="danger" size="sm"
-                                onClick={() => showSwal(row._id)}
-                                    className="btn-square">
-                                <i className="fa fa-trash"></i>&nbsp;Hapus
-                            </Button>
-                        </td>
-                    </tr>
-                )
-            })
-        }
+        })
     }
 
     useEffect(() => {
@@ -314,7 +270,7 @@ function StokPakan() {
                                         {columns.map((column, index) => {
                                             return (
                                             <td>
-                                                <Skeleton height={20}/>
+                                                <Skeleton key={index} height={20}/>
                                             </td>
                                             )
                                         })}
@@ -338,4 +294,4 @@ function StokPakan() {
     )
 }
 
-export default StokPakan;
+export default SensorType;

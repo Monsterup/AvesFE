@@ -21,9 +21,19 @@ export default {
             icon: 'icon-credit-card'
         },
         {
-            name: 'IoT',
+            name: 'Internet of Things',
             url: '/adm/iot',
-            icon: 'icon-feed'
+            icon: 'icon-feed',
+            children: [
+                {
+                    name: 'Daftar IoT',
+                    url: '/adm/iot/list'
+                },
+                {
+                    name: 'Tipe Sensor',
+                    url: '/adm/iot/sensor'
+                }
+            ]
         },
     ],
 };

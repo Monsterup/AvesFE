@@ -24,10 +24,7 @@ import navigationDefOwner from '../../_nav_owner';
 import navigationAds from '../../_nav_ads';
 import auth from '../../../auth';
 
-// navigationDefAdmin.items.push(navigationAds.items[0]);
 navigationDefOwner.items.push(navigationAds.items[0]);
-// navigationDefAdmin.items.push(navigationAds.items[1]);
-// navigationDefOwner.items.push(navigationAds.items[1]);
 
 function DefaultLayout(props) {
     const loading = () => 

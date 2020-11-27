@@ -47,7 +47,7 @@ function UpdateHouse(props) {
                     <option></option>
                     {props.data.feed.map((data, key) => {
                         return (
-                            <option key={key} value={data._id}>{data.code} - {data.type}</option>
+                            <option key={key} value={data._id}>P{data.code} - {data.type}</option>
                         )
                     })}
                 </AvInput>

@@ -6,7 +6,7 @@ function CreateModal(props) {
     return (
         <Modal isOpen={props.modal} toggle={props.onCancel} className="modal-lg">
             <ModalHeader toggle={props.onCancel}>{props.title}</ModalHeader>
-            <AvForm onSubmit={props.onSubmit}>
+            <AvForm onSubmit={props.onSubmit} disabled={props.onLoad}>
                 <ModalBody>
                     {props.children}
                 </ModalBody>

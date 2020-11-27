@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import { Col, Row, Button} from "reactstrap";
+import { showNotification } from '../../components/Notification';
 import AvInput from "../../components/Input";
 import CreateModal from "../../components/CreateModal";
 import DefaultPhoto from '../../../assets/img/avatar/logo_only_250.svg';
@@ -27,7 +28,7 @@ function UpdateProfile(props) {
         if (err.length > 0) {
             return;
         }
-
+        showNotification("check");
         console.log(value);
         // try {
         //     let res = await axios.post('graphql', JSON.stringify(queryUpdate(value)), {

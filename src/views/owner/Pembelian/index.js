@@ -61,13 +61,12 @@ function Pembelian(props) {
 
     const prov = async (cb) => {
         // const kode = await axios.get()
-        const res = await axios.get('https://ongkir.glitch.me/province', {
+        const res = await axios.post('https://ongkir.glitch.me/provinsi', {
             'headers': {
                 'Content-Type': 'application/json',
             }
         });
-
-        setProvinsi(res.data.data.rajaongkir.results);
+        setProvinsi(res.data.data);
     }
 
     useEffect(() => {
@@ -76,11 +75,11 @@ function Pembelian(props) {
 
     const handleProvinsi = async(e) => {
         const value = e.target.value;
-        await axios.post('https://ongkir.glitch.me/city', {
+        await axios.post('https://ongkir.glitch.me/kota', {
             prov: value
         })
         .then(res => {
-            setKota(res.data.data.rajaongkir.results)
+            setKota(res.data.data)
         })
         .catch(err => {
             console.log(err)
@@ -89,26 +88,24 @@ function Pembelian(props) {
 
     const handleKota = async(e) => {
         const value = e.target.value;
-        let berat = jumlah * 0.5;
+        let berat = jumlah * 500;
         if(berat < 1) {
             berat = 1
         }
-        const tiki = await axios.post('https://ongkir.glitch.me/cost_tiki', {
-            des: value,
-            weight: berat
-        });
-        console.log(tiki);
-        setTiki(tiki.data.data.rajaongkir.results);
-        const pos = await axios.post('https://ongkir.glitch.me/cost_pos', {
-            des: value,
-            weight: berat
-        });
-        setPos(pos.data.data.rajaongkir.results);
-        const jne = await axios.post('https://ongkir.glitch.me/cost_jne', {
-            des: value,
-            weight: berat
-        });
-        setJne(jne.data.data.rajaongkir.results);
+        const tiki = await axios.post(
+            `http://api.shipping.esoftplay.com/cost?origin_id=1225&destination_id=${value}&courier=tiki&weight=${berat}`
+        );
+        setTiki(tiki.data.result);
+
+        const pos = await axios.post(
+            `http://api.shipping.esoftplay.com/cost?origin_id=1225&destination_id=${value}&courier=pos&weight=${berat}`
+        );
+        setPos(pos.data.result);
+
+        const jne = await axios.get(
+            `http://api.shipping.esoftplay.com/cost?origin_id=1225&destination_id=${value}&courier=jne&weight=${berat}`
+        );
+        setJne(jne.data.result);
     }
 
     const handleOngkir = async(e) => {
@@ -231,7 +228,7 @@ function Pembelian(props) {
                             <Input type="select" label="Provinsi" onChange={handleProvinsi}>
                                 <option></option>
                                 {provinsi.map((data, key) => (
-                                    <option key={key} value={data.province_id}>{data.province}</option>
+                                    <option key={key} value={data[0]}>{data[3]}</option>
                                 ))}
                             </Input>
                         </Col>
@@ -239,7 +236,7 @@ function Pembelian(props) {
                             <Input type="select" label="Kota" onChange={handleKota}>
                                 <option></option>
                                 {kota.map((data, key) => (
-                                    <option key={key} value={data.city_id}>{data.city_name}</option>
+                                    <option key={key} value={data[0]}>{data[3]}</option>
                                 ))}
                             </Input>
                         </Col>

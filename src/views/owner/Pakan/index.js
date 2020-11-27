@@ -20,7 +20,6 @@ import { NotificationContainer } from 'react-notifications';
 
 function Pakan() {
     const [loading, setLoading] = useState(true);
-
     //Data Table
     const objectName = "Master Pakan";
     const headings = ['Kode', 'Perusahaan Pakan', 'Tahun Produksi', 'Jenis'];
@@ -28,23 +27,19 @@ function Pakan() {
     const [swal, setSwal] = useState(false);
     const [objects, setObjects] = useState([]);
     const [object, setObject] = useState(null);
-
     //Delete & Update
     const [updateModal, setUpdateModal] = useState(false);
     const [deleteObject, setDeleteObject] = useState(null);
-
     //Pagination
     const ref = useRef('');
     const [pagination, setPagination] = useState([]);
     const [paginationActive, setPaginationActive] = useState(1);
     const [maxPage, setMaxPage] = useState(0);
-
     //Showed List
     const number = useRef(10);
     const option = [10, 25, 50, 100];
-
     //Query Params
-    const [limit, setLimit] = useState(10);
+    const [limit, setLimit] = useState(sessionStorage.getItem('limit') || 10);
     const [skip, setSkip] = useState(0);
     const [keyword, setKeyword] = useState('');
 
@@ -53,9 +48,10 @@ function Pakan() {
         return (
             <div>
                 <CreateHouse objectName={objectName} onSuccess={() => fetchData(keyword, limit, skip, () => {})}/>
-                {updateModal && 
-                <UpdateHouse objectName={objectName} onSuccess={updateSuccess} data={object} modal={updateModal}
-                    onCancel={() => setUpdateModal(false)}/>
+                {
+                    updateModal && 
+                    <UpdateHouse objectName={objectName} onSuccess={updateSuccess} data={object} modal={updateModal}
+                        onCancel={() => setUpdateModal(false)}/>
                 }
             </div>
         )
@@ -63,6 +59,7 @@ function Pakan() {
 
     //Fetch List Data
     const fetchData = (keyword = '', limit_ = limit, skip_ = skip, callback) => {
+        setLoading(true);
         const q = `query{
                         feeds(keyword : "${keyword}", limit : ${limit_}, skip : ${skip_}){
                             totalCount
@@ -84,6 +81,17 @@ function Pakan() {
         })
     }
 
+    useEffect(() => {
+        fetchData(keyword, limit, skip, (page) => {
+            setMaxPage(page);
+            if (page > 5) {
+                setPagination([1, 2, 3, '...', page]);
+            } else {
+                setPagination(Array.from(Array(page).keys()).map(x => ++x));
+            }
+        });
+    }, []);
+
     // Fetch Update Data
     const showUpdateDialog = (_id) => {
         const q = `query{
@@ -99,19 +107,13 @@ function Pakan() {
                 `;
         AsyncFetch(q, (res) => {
             setObject(res.data.data.feed);
+            setUpdateModal(true);
         });
     }
 
-    useEffect(() => {
-        return () => {
-            setUpdateModal(true)
-        }
-    }, [object]);
-
     const updateSuccess = () => {
         setUpdateModal(false);
-        fetchData(keyword, limit, skip, () => {
-        });
+        fetchData(keyword, limit, skip, () => {});
     };
 
     // Fetch Delete Data
@@ -136,6 +138,37 @@ function Pakan() {
         })
     }
 
+    const handleSearchChange = (e) => {
+        setKeyword(e.target.value);
+        fetchData(e.target.value, limit, skip, (page) => {
+            setMaxPage(page);
+            if (page > 5) {
+                setPagination([1, 2, 3, '...', page]);
+            } else {
+                setPagination(Array.from(Array(page).keys()).map(x => ++x));
+            }
+        });
+        setPaginationActive(1);
+    };
+
+    const handleLimitChange = (e) => {
+        setLimit(e.target.value);
+        sessionStorage.setItem('limit', e.target.value);
+        fetchData(keyword, e.target.value, skip, (page) => {
+            setMaxPage(page);
+            if (page > 5) {
+                setPagination([1, 2, 3, '...', page]);
+            } else {
+                setPagination(Array.from(Array(page).keys()).map(x => ++x));
+            }
+        })
+    }
+
+    const handleChangePagination = (target) => {
+        fetchData(keyword, 10, (target - 1) * 10, () => {
+        });
+    };
+
     //Render Fetch Data
     const renderData = (objects) => {
         return objects.map(function (row, row_index) {
@@ -144,11 +177,17 @@ function Pakan() {
             return (
                 <tr key={row_index}>
                     {
-                        columns.map((column, index) => (
-                            <td key={column + index}>
-                                {row[column]}
-                            </td>
-                        ))
+                        columns.map((column, index) => {
+                            if(column === "code") {
+                                return (
+                                    <td key={column + index}>P{row[column]}</td>
+                                )
+                            } else {
+                                return (
+                                    <td key={column + index}>{row[column]}</td>
+                                )
+                            }
+                        })
                     }
                     <td>
                         <Button color="primary" size="sm"
@@ -168,35 +207,6 @@ function Pakan() {
         })
     }
 
-    useEffect(() => {
-        fetchData(keyword, limit, skip, (page) => {
-            setMaxPage(page);
-            if (page > 5) {
-                setPagination([1, 2, 3, '...', page]);
-            } else {
-                setPagination(Array.from(Array(page).keys()).map(x => ++x));
-            }
-        });
-    }, []);
-
-    const handleChangePagination = (target) => {
-        fetchData(keyword, 10, (target - 1) * 10, () => {
-        });
-    };
-
-    const handleSearchChange = (e) => {
-        setKeyword(e.target.value);
-        fetchData(e.target.value, limit, skip, (page) => {
-            setMaxPage(page);
-            // if (page > 5) {
-            //     ref.current.handleSearch([1, 2, 3, '...', page], page);
-            // } else {
-            //     ref.current.handleSearch(Array.from(Array(page).keys()).map(x => ++x), page);
-            // }
-        });
-        setPaginationActive(1);
-    };
-
     return (
         <div className="animated fadeIn">
             <Row>
@@ -215,7 +225,7 @@ function Pakan() {
                                         placeholder="Cari..."/>
                                 </Col>
                                 <Col md="1">
-                                    <Input type="select" name="number" innerRef={number}>
+                                    <Input type="select" value={limit} name="number" onChange={handleLimitChange} innerRef={number}>
                                         {option.map((data, key) => {
                                             return (<option key={key} value={data}>{data}</option>)
                                         })}
@@ -239,7 +249,7 @@ function Pakan() {
                                     <tr>
                                         {columns.map((column, index) => {
                                             return (
-                                            <td>
+                                            <td key={index}>
                                                 <Skeleton height={20}/>
                                             </td>
                                             )

@@ -8,7 +8,7 @@ import {showNotification} from '../../components/Notification'
 import auth from '../../../auth'
 import AsyncFetch from '../../components/AsyncFetch';
 
-export default function CreateStokPakan(props) {
+export default function CreatePanen(props) {
     const [modal, setModal] = useState(false);
     const [rearingOptions, setRearingOptions] = useState([]);
     const [hasRearing, setHasRearing] = useState(true);

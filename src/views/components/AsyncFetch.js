@@ -22,8 +22,9 @@ const AsyncFetch = (query, callback) => {
     }).catch(err => {
         console.log(err);
         if (err.response.data.errors) {
-            auth.logout();
-            window.location.href = '/';
+            console.log(err);
+            // auth.logout();
+            // window.location.href = '/';
         } else {
             console.log(err);
         }
