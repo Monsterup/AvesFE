@@ -217,7 +217,13 @@ function Pembelian(props) {
 
       <main>
       <Route path="/product/:id" component={ProductScreen}></Route>
-          <Route path="/" component={HomeScreen} exact></Route>
+      <div>
+          <div className="rowA center">
+          {dataIot.products.map(product => (
+          <Product key={product._id} product={product}></Product>
+          )) }    
+          </div>
+        </div>
       </main>
 
       <footer className="rowA center">All right reserved</footer>

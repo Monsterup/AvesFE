@@ -72,7 +72,12 @@ function Dashboard(props) {
     return (
       <div className="animated fadeIn">
         <Row>
-          <Col xs="12" sm="6" lg="6">
+        <Col lg="12">
+            <h1>Dashboard</h1>
+            <br/>
+        </Col>
+
+          <Col xs="12" sm="6" lg="3">
             <Card className="text-white bg-info">
             <CardBody className="pb-0">
                 <div>Total Pengguna</div>
@@ -82,7 +87,8 @@ function Dashboard(props) {
             </div>
             </Card>
           </Col>
-          <Col xs="12" sm="6" lg="6">
+      
+          <Col xs="12" sm="6" lg="3">
               <Card className="text-white bg-info">
               <CardBody className="pb-0">
                   <div>Total Transaksi</div>
@@ -92,7 +98,8 @@ function Dashboard(props) {
               </div>
               </Card>
           </Col>
-          <Col xs="12" sm="6" lg="6">
+
+          <Col xs="12" sm="6" lg="3">
               <Card className="text-white bg-info">
               <CardBody className="pb-0">
                   <div>Total IoT</div>
@@ -102,22 +109,12 @@ function Dashboard(props) {
               </div>
               </Card>
           </Col>
-          <Col xs="12" sm="6" lg="6">
-              <Card className="text-white bg-info">
-              <CardBody className="pb-0">
-                  <div>Total IoT</div>
-                  <div className="text-value">{device}</div>
-              </CardBody>
-              <div className="chart-wrapper mx-3" style={{ height: '50px' }}>
-              </div>
-              </Card>
-            <br/>
-            <br/>
-          </Col>
+          
           <Col lg="12">
             <h4>Status Transaksi</h4>
             <br/>
           </Col>
+          
           <Col xs="12" sm="6" lg="3">
               <Card className="text-white bg-warning">
               <CardBody className="pb-0">

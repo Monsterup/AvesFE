@@ -121,31 +121,35 @@ function Profile(props) {
         <NotificationContainer/>
         <Modal/>
         <Row className="justify-content-center">
-          <Col md="8">
+          <Col md="6">
             <CardGroup className="box-shadow">
             <Card className="text-black py-5 px-5">
                 <Row>
                   <Col md="12">
                   <CardBody className="d-flex">
                     <div className="my-auto">
-                      <h2>{object['name']}</h2>
-                      <h4 style={{"color":"gray"}}>({object['role']})</h4>
+                      <h2 style={{"text-align": "center" }}>{object['name']}</h2>
+                      <h4 style={{"color":"gray","text-align": "center" }}>({object['role']})</h4>
                       <br/>
                       <Row>
                         <Col md="12" className="mb-3">
                           <b style={{"display": "inline"}}>Nama Pengguna : </b>
+                          <br></br>
                           <p style={{"display": "inline"}}>{object['username']}</p>
                         </Col>
                         <Col md="12" className="mb-3">
                           <b style={{"display": "inline"}}>Email : </b>
+                          <br></br>
                           <p style={{"display": "inline"}}>{object['email']}</p>
                         </Col>
                         <Col md="12">
                           <b style={{"display": "inline"}}>Alamat : </b>
+                          <br></br>
                           <p>{object['address']}</p>
                         </Col>
                         <Col md="12">
                         <b style={{"display": "inline"}}>Peternakan : </b>
+                        <br></br>
                         {peternakan.map((data, index) => {
                           return(
                             <p key={index}>{data.name}</p>
@@ -200,7 +204,7 @@ function Profile(props) {
                             <Col md="8"/>
                             <Col md="4" className="text-right">
                               <Button type="submit" color="danger" className="px-4" block>
-                                {loading ? <Loader type="ThreeDots" height={20} width={40} color="#ffffff"/> : "Simpan Kata Sandi"}
+                                {loading ? <Loader type="ThreeDots" height={20} width={40} color="#ffffff"/> : "Simpan"}
                               </Button>
                             </Col>
                         </Row>
