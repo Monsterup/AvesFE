@@ -15,6 +15,7 @@ const Alat = React.lazy(() => import('./views/owner/IoT/Alat'));
 const Pembelian = React.lazy(() => import('./views/owner/Pembelian'));
 const Rincian = React.lazy(() => import('./views/owner/Pembelian/Rincian'));
 const Pembayaran = React.lazy(() => import('./views/owner/Pembelian/Pembayaran'));
+const Produk = React.lazy(() => import('./views/owner/Pembelian/screens/ProductScreen'));
 
 const routes = [
     { path: '/dashboard', name: 'Dashboard', component: Dashboard },
@@ -29,6 +30,7 @@ const routes = [
     { path: '/feed_stock', name: 'Stok Pakan', component: StokPakan },
     { path: '/rearing', name: 'Periode Pemeliharaan', component: Rearing },
     { path: '/harvest', name: 'Panen', component: Panen },
+    { path: '/transaction/order/product/:id', name: 'Produk', component: Produk },
     { path: '/transaction/order', name: 'Pemesanan', component: Pembelian },
     { path: '/transaction/detail', name: 'Rincian', component: Rincian },
     { path: '/transaction/proof', name: 'Rincian / Bukti Pembayaran', component: Pembayaran },

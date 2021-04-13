@@ -7,6 +7,13 @@ import {
     Modal,
     ModalHeader,
     ModalBody,
+    Card,
+    cardData,
+    CRow,
+    CCol,
+    CardBody,
+    CardFooter,
+    CardTitle,
     ModalFooter
 } from 'reactstrap'
 import {
@@ -17,7 +24,11 @@ import Input from '../../components/Input';
 import AsyncFetch from '../../components/AsyncFetch';
 import {showNotification} from '../../components/Notification'
 import auth from '../../../auth'
-
+import { BrowserRouter, Route } from 'react-router-dom';
+import ProductScreen from './screens/ProductScreen';
+import HomeScreen from './screens/HomeScreen';
+import dataIot from './dataIot';
+import Product from './components/Product';
 
 function Pembelian(props) {
     const arrBeli = [1,2,3,4,5,6,7,8,9,10,15,20];
@@ -61,12 +72,13 @@ function Pembelian(props) {
 
     const prov = async (cb) => {
         // const kode = await axios.get()
-        const res = await axios.post('https://ongkir.glitch.me/provinsi', {
+        const res = await axios.get('https://ongkir.glitch.me/province', {
             'headers': {
                 'Content-Type': 'application/json',
             }
         });
-        setProvinsi(res.data.data);
+
+        setProvinsi(res.data.data.rajaongkir.results);
     }
 
     useEffect(() => {
@@ -75,11 +87,11 @@ function Pembelian(props) {
 
     const handleProvinsi = async(e) => {
         const value = e.target.value;
-        await axios.post('https://ongkir.glitch.me/kota', {
+        await axios.post('https://ongkir.glitch.me/city', {
             prov: value
         })
         .then(res => {
-            setKota(res.data.data)
+            setKota(res.data.data.rajaongkir.results)
         })
         .catch(err => {
             console.log(err)
@@ -88,24 +100,26 @@ function Pembelian(props) {
 
     const handleKota = async(e) => {
         const value = e.target.value;
-        let berat = jumlah * 500;
+        let berat = jumlah * 0.5;
         if(berat < 1) {
             berat = 1
         }
-        const tiki = await axios.post(
-            `http://api.shipping.esoftplay.com/cost?origin_id=1225&destination_id=${value}&courier=tiki&weight=${berat}`
-        );
-        setTiki(tiki.data.result);
-
-        const pos = await axios.post(
-            `http://api.shipping.esoftplay.com/cost?origin_id=1225&destination_id=${value}&courier=pos&weight=${berat}`
-        );
-        setPos(pos.data.result);
-
-        const jne = await axios.get(
-            `http://api.shipping.esoftplay.com/cost?origin_id=1225&destination_id=${value}&courier=jne&weight=${berat}`
-        );
-        setJne(jne.data.result);
+        const tiki = await axios.post('https://ongkir.glitch.me/cost_tiki', {
+            des: value,
+            weight: berat
+        });
+        console.log(tiki);
+        setTiki(tiki.data.data.rajaongkir.results);
+        const pos = await axios.post('https://ongkir.glitch.me/cost_pos', {
+            des: value,
+            weight: berat
+        });
+        setPos(pos.data.data.rajaongkir.results);
+        const jne = await axios.post('https://ongkir.glitch.me/cost_jne', {
+            des: value,
+            weight: berat
+        });
+        setJne(jne.data.data.rajaongkir.results);
     }
 
     const handleOngkir = async(e) => {
@@ -166,10 +180,10 @@ function Pembelian(props) {
 
     const Mod = () => {
         return (
-            <Modal isOpen={modal} className="modal-lg">
+            <Modal isOpen={modal} classNameName="modal-lg">
                 <ModalHeader>Detail Pembayaran</ModalHeader>
                 <AvForm onSubmit={submit}>
-                    <ModalBody className="text-center">
+                    <ModalBody classNameName="text-center">
                         <b>Pembayaran ke rekening : </b> <br/><br/>
                         <h4>03312387292 (BCA)</h4>
                         <b>AvesboxGroup</b>
@@ -189,125 +203,26 @@ function Pembelian(props) {
     }
 
     return (
-        <div className="text-center justify-content-center">
-            <Mod/>
-            <h3>Masukkan Data Pembelian Avesbox IoT</h3>
-            <br/>
-            <Form>
-                <AvForm onSubmit={(e,err) => {
-                    if (err.length > 0) {
-                        return;
-                    }
-
-                    setModal(true);
-                }}>
-                    <Row>
-                        <Col md="4"/>
-                        <Col md="4">
-                            <Input label="Nama Penerima" onChange={e => {setNama(e.target.value)}}/>
-                        </Col>
-                        <Col md="4"/>
-                        <Col md="4"/>
-                        <Col md="4">
-                            <Input type="select" label="Jumlah Pembelian IoT" onChange={(e) => {setJumlah(e.target.value)}}>
-                                <option></option>
-                                {arrBeli.map((data, key) => (
-                                    <option key={key} value={data}>{data}</option>
-                                ))}
-                            </Input>
-                        </Col>
-                        <Col md="4"/>
-                        <Col md="4"/>
-                        <Col md="4">
-                            <b>Detail Pengiriman</b>
-                            <br/>
-                        </Col>
-                        <Col md="4"/>
-                        <Col md="4"/>
-                        <Col md="2">
-                            <Input type="select" label="Provinsi" onChange={handleProvinsi}>
-                                <option></option>
-                                {provinsi.map((data, key) => (
-                                    <option key={key} value={data[0]}>{data[3]}</option>
-                                ))}
-                            </Input>
-                        </Col>
-                        <Col md="2">
-                            <Input type="select" label="Kota" onChange={handleKota}>
-                                <option></option>
-                                {kota.map((data, key) => (
-                                    <option key={key} value={data[0]}>{data[3]}</option>
-                                ))}
-                            </Input>
-                        </Col>
-                        <Col md="4"/>
-                        <Col md="4"/>
-                        <Col md="4">
-                            <Input type="textarea" label="Detail Alamat Lengkap" onChange={e => {setAlamat(e.target.value)}} helpMessage="*Harap disertai kode pos"/>
-                        </Col>
-                        <Col md="4"/>
-                        <Col md="4"/>
-                        <Col md="4">
-                            <Input type="select" label="Jasa Pengiriman" onChange={handleOngkir}>
-                                <option></option>
-                                <optgroup label="TIKI">
-                                {tiki.map((data1, key) => (
-                                    data1.costs.map((data, key) => 
-                                    {
-                                        let value = data1.code + ", " + data.service + ", " + data.cost[0].value;
-                                        return (
-                                        <option key={key} value={value}>
-                                            {data.service} - Rp. {data.cost[0].value} [{data.cost[0].etd} HARI]
-                                        </option>)
-                                    })
-                                ))}
-                                </optgroup>
-                                <optgroup label="POS">
-                                {pos.map((data1, key) => (
-                                    data1.costs.map((data, key) => 
-                                    {
-                                        let value = data1.code + ", " + data.service + ", " + data.cost[0].value;
-                                        return (
-                                        <option key={key} value={value}>
-                                            {data.service} - Rp. {data.cost[0].value} [{data.cost[0].etd}]
-                                        </option>)
-                                    })
-                                ))}
-                                </optgroup>
-                                <optgroup label="JNE">
-                                {jne.map((data1, key) => (
-                                    data1.costs.map((data, key) => 
-                                    {
-                                        let value = data1.code + ", " + data.service + ", " + data.cost[0].value;
-                                        return (
-                                        <option key={key} value={value}>
-                                            {data.service} - Rp. {data.cost[0].value} [{data.cost[0].etd} HARI]
-                                        </option>)
-                                    })
-                                ))}
-                                </optgroup>
-                            </Input>
-                        </Col>
-                        <Col md="4"/>
-                        <Col md="12">
-                            <br/>
-                            <br/>
-                        </Col>
-                        <Col md="12">
-                            <h4>Total Pembayaran : </h4>
-                            <h3>Rp. {jumlah * 50000 + ongkir}</h3>
-                            <br/>
-                            <br/>
-                        </Col>
-                        <Col md="4"/>
-                        <Col md="4" className="text-right">
-                            <Button type="submit" color="primary" className="px-4" block>Bayar</Button>
-                        </Col>
-                        <Col md="4"/>
-                    </Row>
-                </AvForm>
-            </Form>
+    <BrowserRouter>
+      <div className="grid-container">
+      <header className="rowA">
+        <div>
+          <a className="brand" href="/">amazona</a>
         </div>
+        <div>
+          <a href="/cart">Cart</a>
+          <a href="/signin">Sign In</a>
+        </div>
+      </header>
+
+      <main>
+      <Route path="/product/:id" component={ProductScreen}></Route>
+          <Route path="/" component={HomeScreen} exact></Route>
+      </main>
+
+      <footer className="rowA center">All right reserved</footer>
+      </div>
+    </BrowserRouter>
     )
 }
 
