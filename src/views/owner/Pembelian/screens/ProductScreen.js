@@ -7,36 +7,38 @@ export default function ProductScreen(props) {
   if (!product) {
     return <div> Product Not Found</div>;
   }
+
+  
   return (
     <div>
-      <Link to="/">Back to result</Link>
-      <div className="row top">
-        <div className="col-2">
-          <img className="large" src={product.image} alt={product.name}></img>
+      <Link to="/transaction/order">Back to result</Link>
+      <div class="containerA">
+        <div class="sectionA">
+        <img className="large" src={product.image} alt={product.name}></img>
         </div>
-        <div className="col-1">
-          <ul>
+        <div class="sectionA-middle">
+        <ul>
             <li>
               <h1>{product.name}</h1>
             </li>
-            <li>Pirce : ${product.price}</li>
+            <li>Price : ${product.price}</li>
             <li>
               Description:
               <p>{product.description}</p>
             </li>
           </ul>
         </div>
-        <div className="col-1">
-          <div className="card card-body">
+        <div class="sectionA">
+        <div className="cardA cardA-body">
             <ul>
               <li>
-                <div className="row">
+                <div className="rowA">
                   <div>Price</div>
                   <div className="price">${product.price}</div>
                 </div>
               </li>
               <li>
-                <div className="row">
+                <div className="rowA">
                   <div>Status</div>
                   <div>
                     {product.countInStock > 0 ? (
@@ -53,7 +55,8 @@ export default function ProductScreen(props) {
             </ul>
           </div>
         </div>
-      </div>
-    </div>
+        </div>
+       </div>
+   
     )
 }

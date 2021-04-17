@@ -1,5 +1,6 @@
 {
   "name": "app-desktop",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -35,11 +36,14 @@
     "react-loadingg": "^1.7.2",
     "react-notifications": "^1.6.0",
     "react-notifications-component": "^2.4.0",
+    "react-redux": "^7.2.3",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
     "react-spinners": "^0.8.3",
     "react-year-picker": "^0.3.7",
     "reactstrap": "^8.4.1",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0",
     "semantic-ui-react": "^0.88.2",
     "simple-line-icons": "^2.4.1",
     "styled-components": "^5.1.0"

@@ -29,6 +29,8 @@ import ProductScreen from './screens/ProductScreen';
 import HomeScreen from './screens/HomeScreen';
 import dataIot from './dataIot';
 import Product from './components/Product';
+import { useDispatch, useSelector } from 'react-redux';
+import { listProducts } from './actions/productActions';
 
 function Pembelian(props) {
     const arrBeli = [1,2,3,4,5,6,7,8,9,10,15,20];
@@ -202,8 +204,16 @@ function Pembelian(props) {
         )
     }
 
+    
+    const dispatch = useDispatch();
+    const productList = useSelector((state) => state.productList);
+    const { products } = productList ?? { products: [] };
+    useEffect(() => {
+    dispatch(listProducts());
+  }, [dispatch]);
+
     return (
-    <BrowserRouter>
+    // <BrowserRouter>
       <div className="grid-container">
       <header className="rowA">
         <div>
@@ -216,7 +226,7 @@ function Pembelian(props) {
       </header>
 
       <main>
-      <Route path="/product/:id" component={ProductScreen}></Route>
+      {/* <Route path="/product/:id" component={ProductScreen}></Route> */}
       <div>
           <div className="rowA center">
           {dataIot.products.map(product => (
@@ -228,7 +238,7 @@ function Pembelian(props) {
 
       <footer className="rowA center">All right reserved</footer>
       </div>
-    </BrowserRouter>
+    /* </BrowserRouter> */
     )
 }
 

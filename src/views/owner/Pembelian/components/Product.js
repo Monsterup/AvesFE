@@ -1,13 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+const showProduct = (id) => {
+    // localStorage.setItem('productId', id);
+    // this.props.history.push('/transaction/order/product');
+}
+
 export default function Product(props){
+    // console.log(this.props);
+    // console.log(props);
     const {product}=props;
     return(
         <div key={product._id} className="cardA">
-                 <a href={'/transaction/order/product/${product._id}'}>
+                 <Link to={'/transaction/order/product/'+product._id}>
                  <img className="medium" src={product.image} alt={product.name} />
-                 </a>
+                 </Link>
               <div className="cardA-body">
                  <Link to={'/transaction/order/product/'+product._id}>
                  <h2>{product.name}</h2>

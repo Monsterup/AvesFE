@@ -156,7 +156,9 @@ function Dashboard(props) {
               </Card>
           </Col>
         </Row>
+        
       </div>
+      
     );
 }
 
