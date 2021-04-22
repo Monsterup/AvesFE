@@ -24,11 +24,14 @@ import Input from '../../components/Input';
 import AsyncFetch from '../../components/AsyncFetch';
 import {showNotification} from '../../components/Notification'
 import auth from '../../../auth'
-import { BrowserRouter, Route } from 'react-router-dom';
+import { BrowserRouter, Link, Route } from 'react-router-dom';
 import ProductScreen from './screens/ProductScreen';
 import HomeScreen from './screens/HomeScreen';
+import CartScreen from './screens/CartScreen';
 import dataIot from './dataIot';
 import Product from './components/Product';
+import LoadingBox from './components/LoadingBox';
+import MessageBox from './components/MessageBox';
 import { useDispatch, useSelector } from 'react-redux';
 import { listProducts } from './actions/productActions';
 
@@ -207,21 +210,29 @@ function Pembelian(props) {
     
     const dispatch = useDispatch();
     const productList = useSelector((state) => state.productList);
-    const { products } = productList ?? { products: [] };
+    const { loading, error, products } = productList ?? { products: [] };
     useEffect(() => {
     dispatch(listProducts());
   }, [dispatch]);
+const cart = useSelector((state) => state.cart);
+const { cartItems } = cart;
 
     return (
     // <BrowserRouter>
       <div className="grid-container">
       <header className="rowA">
         <div>
-          <a className="brand" href="/">amazona</a>
+        <Link className="brand" to="/">
+            amazona </Link>
         </div>
         <div>
-          <a href="/cart">Cart</a>
-          <a href="/signin">Sign In</a>
+        <Link to="/transaction/order /cart">
+              Cart
+              {cartItems.length > 0 && (
+                <span className="badge">{cartItems.length}</span>
+              )}
+            </Link>
+            <Link to="/signin">Sign In</Link>
         </div>
       </header>
 
